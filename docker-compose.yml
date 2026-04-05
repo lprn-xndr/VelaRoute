@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:15
+    container_name: velaroute-db
+    environment:
+      POSTGRES_USER: xndr
+      POSTGRES_PASSWORD: LeonGRC2025!
+      POSTGRES_DB: velaroute
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/postgres_data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vela_admin -d velaroute_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
