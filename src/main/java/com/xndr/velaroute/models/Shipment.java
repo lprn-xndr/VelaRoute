@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
-@Entity // This tells Java: "Create a table in Postgres for this class
+@Entity // This tells Java: "Create a table in Postgres for this class"
 @Table(name = "shipments")
 @Data // Lombok: Auto creates Getters/Setters
 @NoArgsConstructor // Lombok: Creates a blank constructor
