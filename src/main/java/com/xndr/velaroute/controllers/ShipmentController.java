@@ -1,5 +1,6 @@
 package com.xndr.velaroute.controllers;
 
+import com.xndr.velaroute.models.ResourceNotFoundException;
 import com.xndr.velaroute.models.Shipment;
 import com.xndr.velaroute.services.ShipmentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,5 +25,11 @@ public class ShipmentController {
     @PostMapping
     public Shipment create(@RequestBody Shipment shipment) {
         return shipmentService.createShipment(shipment);
+    }
+
+    // GET: http://localhost:8080/api/shipments/:id
+    @GetMapping("/{id}")
+    public Shipment getById(@PathVariable Long id) {
+        return shipmentService.getShipmentById(id);
     }
 }
