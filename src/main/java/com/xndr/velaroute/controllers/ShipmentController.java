@@ -17,8 +17,11 @@ public class ShipmentController {
 
     // GET: http://localhost:8080/api/shipments
     @GetMapping
-    public List<Shipment> getAll() {
-        return shipmentService.getAllShipments();
+    public List<Shipment> search(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String destination) {
+        // We pass these straight to the Service
+        return shipmentService.searchShipments(status, destination);
     }
 
     // POST: http://localhost:8080/api/shipments

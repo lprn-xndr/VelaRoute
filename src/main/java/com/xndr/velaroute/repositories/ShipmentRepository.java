@@ -2,10 +2,12 @@ package com.xndr.velaroute.repositories;
 
 import com.xndr.velaroute.models.Shipment;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ShipmentRepository extends JpaRepository<Shipment, Long> {
+public interface ShipmentRepository extends JpaRepository<Shipment, Long>, JpaSpecificationExecutor<Shipment> {
     // Custom query: Find a shipment by its tracking number
-    Shipment findByTrackingNumber(String trackingNumber);
-}
+        Shipment findByTrackingNumber(String trackingNumber);
+    }
+
