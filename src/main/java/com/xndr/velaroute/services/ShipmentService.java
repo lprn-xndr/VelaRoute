@@ -15,7 +15,8 @@ import static com.xndr.velaroute.specifications.ShipmentSpecifications.*;
 public class ShipmentService {
 
     @Autowired // This injects the repository so we can use it
-    private ShipmentRepository shipmentRepository;
+    private final ShipmentRepository shipmentRepository;
+    private final ShipmentTrie shipmentTrie; // 1. Add the Trie field
 
     public List<Shipment> searchShipments(String status, String destination) {
         // We start with an "Empty" search (find all)
@@ -35,9 +36,20 @@ public class ShipmentService {
         return shipmentRepository.findAll(spec);
     }
 
+    // 2. Update the constructor to include the Trie
+    public ShipmentService(ShipmentRepository shipmentRepository, ShipmentTrie shipmentTrie) {
+        this.shipmentRepository = shipmentRepository;
+        this.shipmentTrie = shipmentTrie;
+    }
+
     public Shipment createShipment(Shipment shipment) {
         // You could add logic here: e.g., check is tracking number is valid
-        return shipmentRepository.save(shipment);
+        // Standard Database Save
+        Shipment saved = shipmentRepository.save(shipment);
+
+        // 3. The 'Sync' Hook: Push the new tracking number into the Trie
+        shipmentTrie.insert(saved.getTrackingNumber());
+        return saved;
     }
 
     public Shipment getShipmentById(Long id) {

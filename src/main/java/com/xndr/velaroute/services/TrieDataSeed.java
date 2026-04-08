@@ -26,6 +26,7 @@ public class TrieDataSeed implements CommandLineRunner {
         });
 
         System.out.println("✅ Trie Sync Complete!");
+        // Temporary test to make sure Trie is working properly.
         System.out.println("Trie Test (Searching 'VELA'): " + shipmentTrie.search("VELA"));
     }
 }
