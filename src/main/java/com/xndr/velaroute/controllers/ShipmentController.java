@@ -3,7 +3,9 @@ package com.xndr.velaroute.controllers;
 import com.xndr.velaroute.models.ResourceNotFoundException;
 import com.xndr.velaroute.models.Shipment;
 import com.xndr.velaroute.services.ShipmentService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,8 +28,9 @@ public class ShipmentController {
 
     // POST: http://localhost:8080/api/shipments
     @PostMapping
-    public Shipment create(@RequestBody Shipment shipment) {
-        return shipmentService.createShipment(shipment);
+    public ResponseEntity<Shipment> createShipment(@Valid @RequestBody Shipment shipment) {
+        // Adding @Valid triggers those @NotBlank and @Size rules we wrote in the Entity!
+        return ResponseEntity.ok(shipmentService.createShipment(shipment));
     }
 
     // GET: http://localhost:8080/api/shipments/:id

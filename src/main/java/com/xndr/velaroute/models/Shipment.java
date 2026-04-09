@@ -1,9 +1,11 @@
 package com.xndr.velaroute.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.Size;
 
 @Entity // This tells Java: "Create a table in Postgres for this class"
 @Table(name = "shipments")
@@ -15,6 +17,9 @@ public class Shipment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
+    @NotBlank(message = "Tracking number is required")
+    @Size(min = 5, max = 20, message = "Tracking number must be between 5 and 20 chracters")
     @Column(nullable = false, unique = true)
     private String trackingNumber;
 

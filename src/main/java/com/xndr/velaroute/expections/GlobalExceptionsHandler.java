@@ -3,6 +3,7 @@ package com.xndr.velaroute.expections;
 import com.xndr.velaroute.models.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -20,4 +21,12 @@ public class GlobalExceptionsHandler {
         return new ResponseEntity<>(errorBody, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+
+        // This loops through every field that failed (e.g., trackingNumber, zipCode) and grabs the "message" we wrote in the @NotBlank annotation
+        ex.getBindingResult().getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
 }
