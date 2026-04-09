@@ -8,6 +8,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Random;
 
 import static com.xndr.velaroute.specifications.ShipmentSpecifications.*;
 
@@ -43,6 +44,24 @@ public class ShipmentService {
     }
 
     public Shipment createShipment(Shipment shipment) {
+        // 1. Logic for Smart Prefixing
+        String originInfo = shipment.getOrigin().toUpperCase();
+        String prefix = "VELA-GEN-"; // Our fallback
+
+        if (originInfo.contains("FL") || originInfo.contains("FLORIDA")) {
+            prefix = "VELA-FL-";
+        } else if (originInfo.contains("TX") || originInfo.contains("TEXAS")) {
+            prefix = "VELA-TX-";
+        }
+
+        // 2. Generate 5-digit random number
+        //We use %05d to ensure it's always 5 digits (e.g., 00123)
+        Random random = new Random();
+        String randomDigits = String.format("%5d", random.nextInt(100000));
+
+        // 3. Set the tracking number before saving
+        shipment.setTrackingNumber(prefix + randomDigits);
+
         // You could add logic here: e.g., check is tracking number is valid
         // Standard Database Save
         Shipment saved = shipmentRepository.save(shipment);
@@ -56,4 +75,5 @@ public class ShipmentService {
         return shipmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Shipment not found with id: " + id));
     }
+
 }

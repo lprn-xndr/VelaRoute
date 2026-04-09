@@ -18,8 +18,8 @@ public class Shipment {
     private Long id;
 
 
-    @NotBlank(message = "Tracking number is required")
-    @Size(min = 5, max = 20, message = "Tracking number must be between 5 and 20 chracters")
+//    @NotBlank(message = "Tracking number is required")
+//    @Size(min = 5, max = 20, message = "Tracking number must be between 5 and 20 chracters")
     @Column(nullable = false, unique = true)
     private String trackingNumber;
 
