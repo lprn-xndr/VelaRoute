@@ -17,8 +17,14 @@ public class ShipmentController {
     @Autowired
     private ShipmentService shipmentService;
 
-    // GET: http://localhost:8080/api/shipments
+    // GET ALL: http://localhost:8080/api/shipments
     @GetMapping
+    public List<Shipment> getAll() {
+        return shipmentService.searchShipments(null, null);
+    }
+
+    // GET BY FILTER: http://localhost:8080/api/shipments/filter/{prefix}
+    @GetMapping("/filter")
     public List<Shipment> search(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String destination) {
@@ -33,9 +39,22 @@ public class ShipmentController {
         return ResponseEntity.ok(shipmentService.createShipment(shipment));
     }
 
-    // GET: http://localhost:8080/api/shipments/:id
+    // GET BY ID: http://localhost:8080/api/shipments/:id
     @GetMapping("/{id}")
     public Shipment getById(@PathVariable Long id) {
         return shipmentService.getShipmentById(id);
+    }
+
+    // DELETE BY TRACKINGNUMBER
+    @DeleteMapping("/tracking/{trackingNumber}")
+    public ResponseEntity<Void> deleteShipment(@PathVariable String trackingNumber) {
+        shipmentService.deleteByTracking(trackingNumber);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/tracking/{trackingNumber}")
+    public ResponseEntity<Shipment> updateShipment(@PathVariable String trackingNumber, @RequestBody Shipment updatedDetails) {
+        Shipment shipment = shipmentService.updateShipment(trackingNumber, updatedDetails);
+        return ResponseEntity.ok(shipment);
     }
 }

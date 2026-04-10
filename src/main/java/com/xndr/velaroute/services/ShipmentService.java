@@ -76,4 +76,77 @@ public class ShipmentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Shipment not found with id: " + id));
     }
 
+    public void deleteByTracking(String trackingNumber) {
+        // 1. Find the shipment. If it doesn't exist, stop here.
+        Shipment shipment = shipmentRepository.findByTrackingNumber(trackingNumber)
+                .orElseThrow(() -> new RuntimeException("Shipment not found: " + trackingNumber));
+
+        // 2. Remove from the database
+        shipmentRepository.delete(shipment);
+
+        // 3. Remove from the Trie
+        shipmentTrie.delete(trackingNumber);
+    }
+
+    public Shipment updateShipment(String trackingNumber, Shipment updatedDetails) {
+        // 1. Find the existing shipment
+        Shipment existingShipment = shipmentRepository.findByTrackingNumber(trackingNumber)
+                .orElseThrow(() -> new RuntimeException("Shipment not found"));
+
+        // 2a. If the tracking number is changing (rare, but possible), we must remove the OLD one from the Trie
+//        shipmentTrie.delete(existingShipment.getTrackingNumber());
+
+        // 2b. Store the old tracking number to remove from Trie later
+        String oldTrackingNumber = existingShipment.getTrackingNumber();
+
+        // 3a. Update the fields
+//        existingShipment.setOrigin(updatedDetails.getOrigin());
+//        existingShipment.setDestination(updatedDetails.getDestination());
+//        existingShipment.setStatus(updatedDetails.getStatus());
+        // ... update other fields as needed
+
+        // 3b. DEFENSIVE UPDATES (This stops the nulling!)
+        // 3c. Adding handler for Origin/Prefix change
+        if (updatedDetails.getOrigin() != null && !updatedDetails.getOrigin().equalsIgnoreCase(existingShipment.getOrigin())) {
+            existingShipment.setOrigin(updatedDetails.getOrigin());
+
+            // Extracts new prefix (assuming format "City, ST")
+            String newPrefix = extractStatePrefix(updatedDetails.getOrigin());
+
+            // Replace the old prefix on the tracking number
+            // Example: VELA-TX-12345 -> vela-fl-12345
+            String currentTrackingNumber = existingShipment.getTrackingNumber();
+            String newTrackingNumber = currentTrackingNumber.replaceFirst("(?i)Vela-[A-Z]{2}", "VELA-" + newPrefix);
+            existingShipment.setTrackingNumber(newTrackingNumber.toUpperCase());
+        }
+        if (updatedDetails.getDestination() != null) {
+            existingShipment.setDestination(updatedDetails.getDestination());
+        }
+        if (updatedDetails.getStatus() != null) {
+            existingShipment.setStatus(updatedDetails.getStatus());
+        }
+        // ... update other fields as needed
+
+        // 4. Save to database
+        Shipment savedShipment = shipmentRepository.save(existingShipment);
+
+        // 5. Add the (potentially new) tracking number back to the Trie
+        shipmentTrie.insert(savedShipment.getTrackingNumber());
+
+        return savedShipment;
+    }
+    // --- HELPER METHODS ---
+
+    private String extractStatePrefix(String location) {
+        try {
+            // Split "Miami, FL" by the comma
+            String[] parts = location.split(",");
+            if (parts.length < 2) return "XX"; // Fallback if no comma
+
+            // Trim whitespace and grab the first 2 letters (e.g., "FL")
+            return parts[1].trim().substring(0, 2).toUpperCase();
+        } catch (Exception e) {
+            return "XX"; // Fallback is string is too short or weirdly formatted
+        }
+    }
 }

@@ -44,4 +44,14 @@ public class ShipmentTrie {
             findAllChildWords(entry.getValue(), currentWord + entry.getKey(), results);
         }
     }
+
+    public void delete(String trackingNumber) {
+        TrieNode current = root;
+        for (char ch : trackingNumber.toCharArray()) {
+            TrieNode node = current.getChildren().get(ch);
+            if (node == null) return; // Not found, nothing to do
+            current = node;
+        }
+        current.setEndOfWord(false); // It;s no longer a valid searchable ID
+    }
 }
