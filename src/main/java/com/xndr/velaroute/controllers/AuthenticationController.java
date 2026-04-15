@@ -9,11 +9,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -36,14 +38,17 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> authenticate(@RequestBody LoginRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-        );
+    public ResponseEntity<Object> authenticate(@RequestBody LoginRequest request) {
+        AuthenticationResponse response = service.authenticate(request);
 
+        Map<String, Object> body = new HashMap<>();
+        body.put("message", "Successfully Logged In. Generating Token...");
+        body.put("authResponse", response);
+
+        return ResponseEntity.ok(body);
         // If authentication passes, generate the token
         // (You'll need a way to fetch the User from the DB here)
-        return ResponseEntity.ok("Successfully Logged In. Generating Token...");
+//        return ResponseEntity.ok("Successfully Logged In. Generating Token...");
     }
 
 //    @PostMapping
